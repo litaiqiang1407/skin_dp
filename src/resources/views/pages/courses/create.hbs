@@ -1,0 +1,18 @@
+<div class="container mt-4">
+    <h3>Create course</h3>
+    <form method="POST" action="/courses/store">
+        <div class="mb-3 form-group">
+            <label for="name" class="form-label">Name</label>
+            <input name="name" type="text" class="form-control" id="name">
+        </div>
+        <div class="mb-3 form-group">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control" id="description" name="description">
+        </div>
+        <div class="mb-3 form-group">
+            <label for="image" class="form-label">Image</label>
+            <input type="text" class="form-control" id="image" name="thumbnail">
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>

@@ -1,0 +1,243 @@
+<div class="container mt-4">
+    <h2>Detection Skin</h2>
+    <div class="w-100 mx-auto d-flex align-items-stretch justify-content-center gap-4">
+        <!-- Upload Box -->
+        <form id="upload-form" action="/detect/predict" method="POST" enctype="multipart/form-data" class="w-50 mx-auto">
+            <div id="upload-box" class="border border-2 border-primary p-3 text-center d-flex justify-content-center align-items-center position-relative rounded-2 w-100 cursor-pointer "
+                ondragover="handleDragOver(event)" ondrop="handleDrop(event)" style="height: 50vh; background-color: #f9f9f9;">
+                <input type="file" id="file-input" accept="image/*" name="image" class="d-none" onchange="previewImage(event)">
+                <label for="file-input" class="d-flex flex-column justify-content-center align-items-center h-100 cursor-pointer">
+                    <img src="/assets/img/upload.png" alt="Upload Image" class="img-fluid mb-2" style="max-height: 100px;">
+                    <p class="text-muted mt-2">Click or Drag to upload an image</p>
+                </label>
+            </div>
+        
+            <!-- Image Preview (Hidden by Default) -->
+            <div id="image-preview" class="d-none position-relative">
+                <div class="position-relative d-flex justify-content-center align-items-center">
+                    <img id="preview-image" src="" alt="Image Preview" class="img-fluid rounded-2 border border-primary">
+                    <!-- Change & Remove Buttons -->
+                    <div id="image-buttons" class="position-absolute d-flex justify-content-center align-items-center gap-4 d-none rounded-2">
+                        <label for="file-input" class="image-btn p-2 rounded-circle d-lex align-items-center justify-content-center">
+                            <img src="/assets/img/change-image.png" alt="Upload Image" class="img-fluid" style="height: 40px; width: auto;">
+                        </label>
+                        {{!-- <button id="remove-btn" class="image-btn p-2 rounded-circle d-lex align-items-center justify-content-center bg-transparent border-0 border-transparent" onclick="removeImage()">
+                            <img src="/assets/img/remove.png" alt="Upload Image" class="img-fluid" style="height: 40px; width: auto;">
+                        </button> --}}
+                    </div>
+                </div>
+                <p id="file-name" class="text-muted text-center mt-2"></p>
+            </div>
+            <div class="w-100 d-flex align-items-center justify-content-center mt-3">
+                <button type="submit" class="btn btn-primary mx-auto" id="predict-btn" style="width: 100%;" disabled>Predict</button>
+            </div>
+        </form>
+
+        <div id="loading" class="w-50 mx-auto d-none text-center align-items-center justify-content-center gap-2">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="fs-5">Processing...</span>
+        </div>
+
+        <div id="predict-result" class="w-50 mx-auto d-none flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4>Predictions:</h4>
+                <button id="show-image-btn" class="btn btn-primary ml-auto" onclick="showImage()">Show Image</button>
+            </div>
+            <div class="w-100 d-flex align-items-center justify-content-center mt-2">
+                <img id="image-detected" src="" alt="Detected Image" class="img-fluid rounded-2 border border-primary d-none">
+            </div>
+            <ul class="list-group mt-2">
+            </ul>
+            <p id="explanation" class="text-muted mt-2 overflow-auto" style="max-height: 50vh;">
+                
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+#preview-image {
+    transition: opacity 0.3s;
+    aspect-ratio: auto;
+    height: 50vh;
+    object-fit: contain;
+}
+
+#image-detected {
+    aspect-ratio: auto;
+    height: 50vh;
+    object-fit: contain;
+}
+
+#image-preview:hover #image-buttons {
+    display: flex !important;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.image-btn {
+    transition: background 0.3s;
+    cursor: pointer;
+}
+
+.image-btn:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+#loading .spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+</style>
+
+<script>
+// Handle drag over event to allow drop
+function handleDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';  // Change cursor to indicate copy
+}
+
+// Handle drop event
+function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Lấy file từ sự kiện drop
+    const file = event.dataTransfer.files[0];
+
+    // Kiểm tra nếu file là hình ảnh
+    if (file && file.type.startsWith('image/')) {
+        previewImage({ target: { files: [file] } });
+    } else {
+        alert("Please drop a valid image file.");
+    }
+}
+
+// Function to preview image
+function previewImage(event) {
+    const file = event.target.files[0];
+    const fileName = file.name;
+
+    if (!file.type.startsWith('image/')) {
+        alert("Please upload a valid image file.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const previewImage = document.getElementById("preview-image");
+        previewImage.src = e.target.result;
+        document.getElementById("file-name").textContent = "File: " + fileName;
+
+        // Hiển thị phần preview, Ẩn upload-box
+        document.getElementById("image-preview").classList.remove("d-none");
+        document.getElementById("upload-box").classList.add("d-none");
+
+        // Cập nhật kích thước nút Change/Remove
+        setTimeout(() => updateImageButtonsSize(previewImage), 50);
+
+        document.getElementById("predict-btn").disabled = false;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Function to update the size of #image-buttons
+function updateImageButtonsSize(image) {
+    const imageButtons = document.getElementById("image-buttons");
+    imageButtons.style.width = image.offsetWidth + "px";
+    imageButtons.style.height = image.offsetHeight + "px";
+
+    const predictButtons = document.getElementById("predict-btn");
+    predictButtons.style.width = image.offsetWidth + "px";
+}
+
+// Function to remove the uploaded image
+function removeImage() {
+    document.getElementById("file-input").value = '';  // Reset file input
+    document.getElementById("image-preview").classList.add("d-none");  // Ẩn preview
+    document.getElementById("upload-box").classList.remove("d-none");  // Hiện lại upload box
+}
+
+const showImage = () => {
+    const imageDetected = document.getElementById('image-detected');
+    if (imageDetected.classList.contains('d-none')) {
+        imageDetected.classList.remove('d-none');
+        document.getElementById('show-image-btn').textContent = 'Hide Image';
+    } else {
+        imageDetected.classList.add('d-none');
+        document.getElementById('show-image-btn').textContent = 'Show Image';
+    }
+}
+
+document.getElementById('upload-form').addEventListener('submit', function(e) {
+    e.preventDefault();  // Ngừng hành động mặc định của form
+    document.getElementById('predict-result').classList.add('d-none');
+
+    // Hiển thị spinner loading và vô hiệu hóa nút Predict
+    document.getElementById('loading').classList.remove('d-none');
+    document.getElementById('loading').classList.add('d-flex');
+    document.getElementById('predict-btn').disabled = true;  // Disable button during request
+
+    // Tạo FormData để gửi đi
+    const formData = new FormData(this);
+
+    // Gửi dữ liệu lên server
+    fetch('/detect/predict', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Ẩn spinner loading và kích hoạt lại nút Predict
+        document.getElementById('loading').classList.add('d-none');
+        document.getElementById('predict-btn').disabled = false;
+
+        // Hiển thị hình ảnh kết quả
+        const imageDetected = document.getElementById('image-detected');
+        if (data.imageDetected) {
+            imageDetected.src = data.imageDetected;
+        } 
+
+        // Hiển thị danh sách các dự đoán
+        const predictionsList = document.getElementById('predict-result').querySelector('.list-group');
+        predictionsList.innerHTML = ''; // Xóa danh sách dự đoán cũ
+
+        if (data.predictions && data.predictions.length > 0) {
+            data.predictions.forEach(prediction => {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
+                const confidencePercentage = (prediction.confidence * 100).toFixed(2);  // Đưa về dạng 90.00
+
+                // Tạo mô tả dễ hiểu
+                li.innerHTML = `<em>We predict this is <b>${prediction.class}</b> with a confidence of ${confidencePercentage}%.</em>`;
+                predictionsList.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.classList.add('list-group-item');
+            li.innerHTML = 'No predictions found';
+            predictionsList.appendChild(li);
+        }
+
+        // Hiển thị giải thích
+        const explanation = document.getElementById('explanation');
+        let formattedText = data.explanation
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Bold text
+            .replace(/\n/g, '<br>');  // Line breaks
+
+        explanation.innerHTML = formattedText;
+
+        // Hiển thị phần kết quả
+        document.getElementById('predict-result').classList.remove('d-none');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('loading').classList.add('d-none');
+        document.getElementById('predict-btn').disabled = false;
+        alert('There was an error processing the image.');
+    });
+});
+
+</script>

@@ -1,0 +1,71 @@
+<header class="bg-white shadow-sm border-bottom border-2 border-primary-btn" style="height: 72px;">
+    <div class="container d-flex align-items-center h-100">
+        <a href="/" class="d-flex align-items-center gap-2 text-decoration-none h-100">
+            <img src="/assets/img/logo.png" alt="Logo" class="h-100">
+            <h1 class="fs-4 fw-bold text-primary">Skin Detection</h1>
+        </a>
+        <nav class="flex-grow-1 h-100 d-flex align-items-center">
+            <ul class="nav justify-content-evenly w-100 h-100">
+                <li class="nav-item h-100 d-flex align-items-center justify-content-center">
+                    <a 
+                       href="/" 
+                       class="nav-link text-primary text-decoration-none fw-bold fs-5 w-100 text-center"
+                    >Home</a>
+                </li>
+                <li class="nav-item h-100 d-flex align-items-center justify-content-center">
+                    <a 
+                       href="/detect" 
+                       class="nav-link text-primary text-decoration-none fw-bold fs-5 w-100 text-center"
+                    >Detect</a>
+                </li>
+                <li class="nav-item h-100 d-flex align-items-center justify-content-center">
+                    <a 
+                       href="/courses" 
+                       class="nav-link text-primary text-decoration-none fw-bold fs-5 w-100 text-center"
+                    >Courses</a>
+                </li>
+                <li class="nav-item h-100 d-flex align-items-center justify-content-center">
+                    <a 
+                       href="/about" 
+                       class="nav-link text-primary text-decoration-none fw-bold fs-5 w-100 text-center"
+                    >About</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const navItems = document.querySelectorAll(".nav-item");
+    const currentPath = window.location.pathname;
+
+    navItems.forEach(item => {
+        const link = item.querySelector("a"); 
+        if (link.getAttribute("href") === currentPath) {
+            item.classList.add("active"); 
+        } else {
+            item.classList.remove("active");
+        }
+    });
+});
+</script>
+
+<style>
+.nav-item {
+    width: 20%;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.nav-item:hover {
+    transform: translateY(-5px); 
+    background-color: rgba(129, 199, 132, 0.2); 
+}
+
+.nav-item.active {
+    color: #81C784 !important;
+    border-bottom: 4px solid #81C784 !important;
+    background-color: rgba(129, 199, 132, 0.1);
+}
+
+</style>

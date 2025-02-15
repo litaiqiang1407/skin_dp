@@ -1,0 +1,119 @@
+<div class="container mt-4">
+    <h2>Upload Image</h2>
+    <div class="w-100 mx-auto" style="max-width: 50vw;">
+        <!-- Upload Box -->
+        <div id="upload-box" class="border border-2 border-primary p-3 text-center d-flex justify-content-center align-items-center position-relative rounded-2 w-100 cursor-pointer mx-auto"
+            ondragover="handleDragOver(event)" ondrop="handleDrop(event)" style="height: 50vh; max-width: 520px; background-color: #f9f9f9;">
+            <input type="file" id="file-input" accept="image/*" class="d-none" onchange="previewImage(event)">
+            <label for="file-input" class="d-flex flex-column justify-content-center align-items-center h-100 cursor-pointer">
+                <img src="/assets/img/upload.png" alt="Upload Image" class="img-fluid mb-2" style="max-height: 100px;">
+                <p class="text-muted mt-2">Click or Drag to upload an image</p>
+            </label>
+        </div>
+    
+        <!-- Image Preview (Hidden by Default) -->
+        <div id="image-preview" class="mt-4 d-none position-relative">
+            <div class="position-relative d-flex justify-content-center align-items-center">
+                <img id="preview-image" src="" alt="Image Preview" class="img-fluid rounded-2 border border-primary">
+                <!-- Change & Remove Buttons -->
+                <div id="image-buttons" class="position-absolute d-flex justify-content-center align-items-center gap-4 d-none rounded-2">
+                    <label for="file-input" class="image-btn p-2 rounded-circle d-lex align-items-center justify-content-center">
+                        <img src="/assets/img/change-image.png" alt="Upload Image" class="img-fluid" style="height: 40px; width: auto;">
+                    </label>
+                    <button id="remove-btn" class="image-btn p-2 rounded-circle d-lex align-items-center justify-content-center bg-transparent border-0 border-transparent" onclick="removeImage()">
+                        <img src="/assets/img/remove.png" alt="Upload Image" class="img-fluid" style="height: 40px; width: auto;">
+                    </button>
+                </div>
+            </div>
+            <p id="file-name" class="text-muted text-center mt-2"></p>
+        </div>
+    </div>
+</div>
+
+<style>
+#preview-image {
+    transition: opacity 0.3s;
+    aspect-ratio: auto;
+    height: 50vh;
+    object-fit: contain;
+}
+
+#image-preview:hover #image-buttons {
+    display: flex !important;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.image-btn {
+    transition: background 0.3s;
+    cursor: pointer;
+}
+
+.image-btn:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+</style>
+
+<script>
+// Handle drag over event to allow drop
+function handleDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';  // Change cursor to indicate copy
+}
+
+// Handle drop event
+function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Lấy file từ sự kiện drop
+    const file = event.dataTransfer.files[0];
+
+    // Kiểm tra nếu file là hình ảnh
+    if (file && file.type.startsWith('image/')) {
+        previewImage({ target: { files: [file] } });
+    } else {
+        alert("Please drop a valid image file.");
+    }
+}
+
+// Function to preview image
+function previewImage(event) {
+    const file = event.target.files[0];
+    const fileName = file.name;
+
+    if (!file.type.startsWith('image/')) {
+        alert("Please upload a valid image file.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const previewImage = document.getElementById("preview-image");
+        previewImage.src = e.target.result;
+        document.getElementById("file-name").textContent = "File: " + fileName;
+
+        // Hiển thị phần preview, Ẩn upload-box
+        document.getElementById("image-preview").classList.remove("d-none");
+        document.getElementById("upload-box").classList.add("d-none");
+
+        // Cập nhật kích thước nút Change/Remove
+        setTimeout(() => updateImageButtonsSize(previewImage), 50);
+    };
+    reader.readAsDataURL(file);
+}
+
+// Function to update the size of #image-buttons
+function updateImageButtonsSize(image) {
+    const imageButtons = document.getElementById("image-buttons");
+    imageButtons.style.width = image.offsetWidth + "px";
+    imageButtons.style.height = image.offsetHeight + "px";
+}
+
+// Function to remove the uploaded image
+function removeImage() {
+    document.getElementById("file-input").value = '';  // Reset file input
+    document.getElementById("image-preview").classList.add("d-none");  // Ẩn preview
+    document.getElementById("upload-box").classList.remove("d-none");  // Hiện lại upload box
+}
+</script>

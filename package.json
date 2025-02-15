@@ -1,0 +1,48 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon --inspect src/app.js",
+    "watch": "node-sass --watch src/resources/scss/ -o src/public/css/",
+    "dev": "concurrently \"npm:start\" \"npm run watch\"",
+    "test": "https://github.com/kunkun-c/nodejs-blog.git"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kunkun-c/nodejs-blog.git"
+  },
+  "keywords": [
+    "blog",
+    "nodejs",
+    "node",
+    "js"
+  ],
+  "author": "kun",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kunkun-c/nodejs-blog/issues"
+  },
+  "homepage": "https://github.com/kunkun-c/nodejs-blog#readme",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "bootstrap": "^5.0.0-beta3",
+    "express": "^4.21.2",
+    "express-handlebars": "^8.0.1",
+    "hbs": "^4.2.0",
+    "mongoose": "^8.9.5",
+    "mongoose-slug-generator": "^1.0.4",
+    "mongoose-slug-updater": "^3.3.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^3.1.9",
+    "roboflow": "^0.2.0",
+    "sass": "^1.83.4"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "morgan": "^1.10.0",
+    "node-sass": "^9.0.0"
+  }
+}
